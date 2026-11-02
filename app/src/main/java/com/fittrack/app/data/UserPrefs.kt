@@ -15,6 +15,7 @@ private val Context.dataStore by preferencesDataStore(name = "fittrack_prefs")
 class UserPrefs(private val context: Context) {
 
     private fun waterKey(epochDay: Long) = intPreferencesKey("water_$epochDay")
+    private val planVersionKey = intPreferencesKey("plan_version")
     private val remindersKey = booleanPreferencesKey("reminders_enabled")
 
     fun waterGlasses(epochDay: Long): Flow<Int> =
@@ -22,6 +23,12 @@ class UserPrefs(private val context: Context) {
 
     suspend fun setWater(epochDay: Long, glasses: Int) {
         context.dataStore.edit { it[waterKey(epochDay)] = glasses.coerceIn(0, 30) }
+    }
+
+    suspend fun planVersion(): Int = context.dataStore.data.map { it[planVersionKey] ?: 0 }.first()
+
+    suspend fun setPlanVersion(v: Int) {
+        context.dataStore.edit { it[planVersionKey] = v }
     }
 
     val remindersEnabled: Flow<Boolean> =

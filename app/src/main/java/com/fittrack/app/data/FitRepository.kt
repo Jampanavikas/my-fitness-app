@@ -5,6 +5,8 @@ import com.fittrack.app.data.dao.DayTaskDao
 import com.fittrack.app.data.dao.WeightDao
 import com.fittrack.app.data.entity.DayTask
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 
 /** Single entry point the UI layer talks to. */
@@ -22,7 +24,14 @@ class FitRepository(context: Context) {
         dayTaskDao.observeRange(start.toEpochDay(), end.toEpochDay())
 
     /** Generate the day's checklist from the routine the first time it's opened. */
-    suspend fun ensureDayGenerated(date: LocalDate) {
+    private val genLock = Mutex()
+
+    suspend fun ensureDayGenerated(date: LocalDate) = genLock.withLock {
+        // Plan changed: drop today + future checklists so they rebuild; past history stays.
+        if (prefs.planVersion() != RoutineTemplate.PLAN_VERSION) {
+            dayTaskDao.deleteFrom(LocalDate.now().toEpochDay())
+            prefs.setPlanVersion(RoutineTemplate.PLAN_VERSION)
+        }
         val epochDay = date.toEpochDay()
         if (dayTaskDao.countForDay(epochDay) == 0) {
             dayTaskDao.insertAll(RoutineTemplate.buildDay(epochDay, date.dayOfWeek))

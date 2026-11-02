@@ -21,15 +21,14 @@ object ReminderScheduler {
     )
 
     val REMINDERS = listOf(
-        Reminder(1, 6, 0, "Morning walk 🚶", "30-40 min brisk walk — burn that belly fat."),
-        Reminder(2, 6, 30, "Learning block 📚", "Time for your 2 hours of focused study."),
-        Reminder(3, 7, 0, "Breakfast 🍳", "4 boiled eggs + 1 banana."),
-        Reminder(4, 10, 0, "Mid-morning snack", "Roasted chana (50g) + water."),
-        Reminder(5, 13, 0, "Lunch 🍛", "Rice + dal + sabzi. Dal first, 1.5 cups rice max."),
-        Reminder(6, 18, 30, "Pre-workout 🥜", "Peanut butter (2 tbsp) + 1 banana + 2 eggs."),
-        Reminder(7, 19, 45, "Workout time 💪", "7:45-8:45 pm. Warm up, then today's session — let's go!"),
-        Reminder(8, 21, 0, "Dinner 🍽️", "3 egg bhurji + 2 bread + curd."),
-        Reminder(9, 22, 0, "Before bed 🥛", "1 glass milk. Tick off today and rest well."),
+        Reminder(1, 6, 15, "Before gym 🍌", "1 banana + black coffee, plus water."),
+        Reminder(2, 7, 0, "Gym time 💪", "Warm up 5–8 min, then today's session. Sat: outdoor run. Sun: rest."),
+        Reminder(3, 8, 30, "After gym 🥤", "1 scoop whey in water. Did you stretch?"),
+        Reminder(4, 13, 0, "Lunch 🥗", "Boiled bowl + dal, curd, salad, 2 rotis + 3 eggs."),
+        Reminder(5, 16, 0, "4 pm snack", "Banana with oats and seeds."),
+        Reminder(6, 18, 0, "Posture work 🧘", "10 min: bridges, dead bugs, bird dogs, plank, wall angels, chin tucks."),
+        Reminder(7, 20, 30, "Dinner 🍽️", "2 rotis + dal, egg or paneer + sabzi, whole fruit."),
+        Reminder(8, 21, 30, "Soak beans 🫘", "Soak tomorrow's chana/moong/soya. Sleep 7–8 h."),
     )
 
     fun scheduleAll(context: Context) {

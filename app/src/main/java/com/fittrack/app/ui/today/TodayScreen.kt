@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Restaurant
@@ -57,6 +59,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
+import android.net.Uri
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -329,6 +333,25 @@ private fun TaskRow(task: DayTask, onToggle: () -> Unit) {
                         Icons.Filled.ExpandMore, null, tint = accent,
                         modifier = Modifier.size(18.dp).rotate(arrowRotation)
                     )
+                    if (category != TaskCategory.REST) {
+                        val uri = LocalUriHandler.current
+                        Spacer(Modifier.weight(1f))
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    uri.openUri("https://www.youtube.com/results?search_query=" +
+                                        Uri.encode(task.title + " proper form"))
+                                }
+                                .padding(vertical = 4.dp, horizontal = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.PlayCircle, null, tint = accent, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Watch demo", style = MaterialTheme.typography.labelLarge,
+                                color = accent, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
                 AnimatedVisibility(visible = expanded) {
                     Column(Modifier.padding(top = 8.dp)) {
@@ -378,4 +401,5 @@ private fun iconFor(category: TaskCategory): Pair<ImageVector, Color> = when (ca
     TaskCategory.WORKOUT -> Icons.Filled.FitnessCenter to AccentPink
     TaskCategory.SPORT -> Icons.Filled.SportsSoccer to AccentViolet
     TaskCategory.REST -> Icons.Filled.SelfImprovement to AccentGreen
+    TaskCategory.STRETCH -> Icons.Filled.Accessibility to AccentTeal
 }

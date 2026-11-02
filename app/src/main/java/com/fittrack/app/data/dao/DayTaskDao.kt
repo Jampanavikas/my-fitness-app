@@ -18,6 +18,9 @@ interface DayTaskDao {
     @Query("SELECT COUNT(*) FROM day_tasks WHERE epochDay = :epochDay")
     suspend fun countForDay(epochDay: Long): Int
 
+    @Query("DELETE FROM day_tasks WHERE epochDay >= :from")
+    suspend fun deleteFrom(from: Long)
+
     @Insert
     suspend fun insertAll(tasks: List<DayTask>)
 

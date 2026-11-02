@@ -47,7 +47,8 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
     private val sunday: LocalDate = monday.plusDays(6)
 
     private val workoutCats = setOf(
-        TaskCategory.WARMUP.name, TaskCategory.WORKOUT.name, TaskCategory.SPORT.name
+        TaskCategory.WARMUP.name, TaskCategory.WORKOUT.name, TaskCategory.SPORT.name,
+        TaskCategory.STRETCH.name
     )
 
     init {

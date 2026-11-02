@@ -7,15 +7,9 @@ import android.content.Intent
 /** Fires at a reminder's time: posts the notification and re-schedules for tomorrow. */
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val id = intent.getIntExtra(ReminderScheduler.EXTRA_ID, 0)
-        val title = intent.getStringExtra(ReminderScheduler.EXTRA_TITLE) ?: "FitTrack"
-        val text = intent.getStringExtra(ReminderScheduler.EXTRA_TEXT) ?: ""
-
-        Notifications.show(context, id, title, text)
-
-        // Re-arm the same reminder for the next day.
-        ReminderScheduler.reminderById(id)?.let {
-            ReminderScheduler.scheduleOne(context, it)
-        }
+        // Look up the current text (and drop alarms from an older plan).
+        val r = ReminderScheduler.reminderById(intent.getIntExtra(ReminderScheduler.EXTRA_ID, 0)) ?: return
+        Notifications.show(context, r.id, r.title, r.text)
+        ReminderScheduler.scheduleOne(context, r) // re-arm for tomorrow
     }
 }

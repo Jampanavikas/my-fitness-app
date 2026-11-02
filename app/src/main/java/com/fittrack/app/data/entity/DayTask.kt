@@ -26,7 +26,7 @@ data class DayTask(
 
 /** Category drives the icon + accent colour in the UI. Stored as the enum name. */
 enum class TaskCategory {
-    WALK, LEARN, MEAL, WARMUP, WORKOUT, SPORT, REST;
+    WALK, LEARN, MEAL, WARMUP, WORKOUT, SPORT, REST, STRETCH;
 
     companion object {
         fun from(name: String): TaskCategory =

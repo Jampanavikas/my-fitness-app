@@ -5,193 +5,274 @@ import com.fittrack.app.data.entity.TaskCategory
 import java.time.DayOfWeek
 
 /**
- * Builds a day's checklist from the user's real routine:
- *  - 10am-7pm job, weekends off; morning walk + 2h learning before work
- *  - workout 7:45-8:45 pm with home equipment (barbell, dumbbells, tube
- *    resistance band, skipping rope, gripper)
- *  - meal plan (~1650 kcal target), pre-workout = peanut butter + banana + 2 eggs
+ * "Lean & Athletic" weekly plan: Mon–Fri gym at 7 am (push / pull / legs /
+ * upper volume / full body), Sat outdoor run, Sun full rest. Stretching after
+ * every gym session, posture work every day, ~1,850 kcal / ~120 g protein diet.
  *
  * Exercise demo GIFs are served from the public-domain ExerciseGymGifsDB via
  * the jsDelivr CDN.
  */
 object RoutineTemplate {
 
-    const val CALORIE_TARGET = 1650
-    const val PROTEIN_TARGET = 130
-    const val WATER_TARGET_GLASSES = 14 // ~3.5 L
+    /** Bump when the plan changes so today's and future days get regenerated. */
+    const val PLAN_VERSION = 2
 
-    private const val REPS = "4 sets × 12–15 reps"
+    const val CALORIE_TARGET = 1850
+    const val PROTEIN_TARGET = 120
+    const val WATER_TARGET_GLASSES = 12 // 3 L
+
     private const val GIF = "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/"
 
-    /** name, sets/reps, how-to cues, demo gif path. */
+    /** name, sets × reps (+ rest), how-to cues, demo gif path. */
     private data class Ex(val name: String, val reps: String, val how: String, val gif: String = "")
 
-    private data class Block(
-        val warmup: Ex?,
-        val exercises: List<Ex>,
-        val category: TaskCategory = TaskCategory.WORKOUT,
-        val headerTime: String = "19:45",
-    )
+    private data class Block(val title: String, val warmup: Ex, val exercises: List<Ex>)
 
-    private val BURPEE_WARMUP = Ex(
-        "Warm-up: Burpees", "20 reps × 4 sets",
-        "Squat down, hands on floor, kick feet back to a plank, do one push-up, jump feet back in, then jump up with arms overhead. Keep core tight and land softly.",
-        GIF + "cardio/burpee.gif"
-    )
+    private const val EFFORT = " Week 1: light weights, stop 3 reps before failure. After that, finish each set with 1–3 reps left and add 2.5 kg once you hit the top of the rep range on every set."
 
-    private fun blockFor(day: DayOfWeek): Block = when (day) {
+    private fun blockFor(day: DayOfWeek): Block? = when (day) {
         DayOfWeek.MONDAY -> Block(
-            warmup = BURPEE_WARMUP,
-            exercises = listOf(
-                Ex("Push-ups (chest)", REPS,
-                    "Hands slightly wider than shoulders, body straight from head to heels. Lower your chest toward the floor with elbows ~45°, then push back up. Brace your core throughout.",
-                    GIF + "pectorals/push-up.gif"),
-                Ex("Dumbbell chest press", REPS,
-                    "Lie on the floor/bench, dumbbells at chest level. Press up until arms are straight, lower slowly until upper arms touch the floor. Don't bounce.",
-                    GIF + "pectorals/dumbbell-bench-press.gif"),
-                Ex("Dumbbell shoulder press", REPS,
-                    "Seated or standing, dumbbells at shoulder height palms forward. Press overhead until arms straighten, lower under control. Keep core braced, don't arch your lower back.",
+            "Push: chest, shoulders, triceps",
+            Ex("Warm-up: light bench press", "5–8 min walk/cycle, then 2 × 12 light",
+                "Brisk walk or cycle 5–8 min, then 2 sets of 12 with just the bar to groove the movement.",
+                GIF + "pectorals/barbell-bench-press.gif"),
+            listOf(
+                Ex("Barbell or machine bench press", "4 × 8–10 • rest 2 min",
+                    "Feet flat, shoulder blades squeezed together. Lower the bar to mid-chest with elbows ~45°, press back up. Don't bounce off the chest.$EFFORT",
+                    GIF + "pectorals/barbell-bench-press.gif"),
+                Ex("Incline dumbbell press", "3 × 10–12 • rest 90 s",
+                    "Bench at 30–45°. Press dumbbells up over the upper chest, lower slowly until you feel a stretch.",
+                    GIF + "pectorals/dumbbell-incline-bench-press.gif"),
+                Ex("Seated dumbbell shoulder press", "3 × 10 • rest 90 s",
+                    "Back supported, dumbbells at shoulder height. Press overhead, lower under control. Abs tight — don't arch the lower back.",
                     GIF + "delts/dumbbell-seated-shoulder-press.gif"),
-                Ex("Dumbbell lateral raises", REPS,
-                    "Slight bend in elbows, raise dumbbells out to the sides up to shoulder height leading with the elbows, then lower slowly. Use light weight — no swinging.",
+                Ex("Lateral raises", "3 × 12–15 • rest 60 s",
+                    "Slight bend in the elbows, raise out to the sides to shoulder height leading with the elbows. Light weight, no swinging.",
                     GIF + "delts/dumbbell-lateral-raise.gif"),
-            )
-        )
-        DayOfWeek.TUESDAY -> Block(
-            warmup = BURPEE_WARMUP,
-            exercises = listOf(
-                Ex("Pull-ups ★ most important", "4 sets × max reps",
-                    "Overhand grip shoulder-width, hang with arms straight. Pull your chest toward the bar, squeeze shoulder blades, then lower fully. Loop the resistance band under your feet for assistance if needed.",
-                    GIF + "lats/pull-up.gif"),
-                Ex("Deadlift", "4 sets × 8–10 reps",
-                    "Barbell over mid-foot. Hinge at the hips with a flat back, grip the bar, then drive through your heels to stand — hips and shoulders rise together. Keep the bar close to your legs.",
-                    GIF + "glutes/barbell-deadlift.gif"),
-                Ex("Barbell rows", REPS,
-                    "Hinge forward ~45° with a flat back. Pull the barbell to your lower ribs, squeeze your back, lower slowly. Don't jerk with your lower back.",
-                    GIF + "upper-back/barbell-bent-over-row.gif"),
-                Ex("Rope face pull (band)", REPS,
-                    "Anchor the tube resistance band at head height. Pull the handles toward your face with elbows high and wide, squeeze the rear delts, then return slowly.",
-                    GIF + "delts/band-standing-rear-delt-row.gif"),
-            )
-        )
-        DayOfWeek.WEDNESDAY -> Block(
-            warmup = BURPEE_WARMUP,
-            exercises = listOf(
-                Ex("Biceps dumbbell curls", REPS,
-                    "Elbows pinned to your sides, curl the dumbbells up, squeeze the biceps at the top, lower slowly. No swinging or using momentum.",
-                    GIF + "biceps/dumbbell-biceps-curl.gif"),
-                Ex("Biceps hammer curls", REPS,
-                    "Neutral grip (palms facing each other), curl up keeping thumbs pointing up, lower slowly. Targets the brachialis and forearms.",
-                    GIF + "biceps/dumbbell-hammer-curl.gif"),
-                Ex("Triceps overhead extension", REPS,
-                    "Hold one dumbbell with both hands overhead. Lower it behind your head by bending the elbows, then extend back up. Keep elbows pointing forward, not flaring out.",
-                    GIF + "triceps/dumbbell-standing-triceps-extension.gif"),
-                Ex("Dumbbell skull crushers", REPS,
-                    "Lie down, dumbbells held over your chest. Bend the elbows to lower toward your forehead, then extend back up. Keep your elbows pointing at the ceiling.",
-                    GIF + "triceps/dumbbell-lying-triceps-extension.gif"),
-            )
-        )
-        DayOfWeek.THURSDAY -> Block(
-            warmup = Ex("Warm-up: Squats", "20 reps × 4 sets",
-                "Bodyweight squats — feet shoulder-width, sit hips back and down until thighs are about parallel, drive through your heels to stand. Chest up, knees tracking over toes.",
-                GIF + "glutes/weighted-squat.gif"),
-            exercises = listOf(
-                Ex("Barbell squats", REPS,
-                    "Bar resting on your upper back, feet shoulder-width. Sit hips back and down until thighs are about parallel, then drive through your heels back up. Keep chest up and knees tracking over toes.",
-                    GIF + "glutes/barbell-full-squat.gif"),
-                Ex("Dumbbell lunges", REPS,
-                    "Dumbbells at your sides. Step forward and lower your back knee toward the floor, then push back up. Keep your torso upright and alternate legs.",
-                    GIF + "glutes/dumbbell-lunge.gif"),
-                Ex("Dumbbell leg curls", REPS,
-                    "Lie face down, grip a dumbbell between your feet. Curl your heels toward your glutes, then lower under control. Targets the hamstrings.",
-                    GIF + "hamstrings/dumbbell-lying-femoral.gif"),
-                Ex("Calf raises", "4 sets × 15–20 reps",
-                    "Stand on the edge of a step, hold dumbbells for resistance. Rise onto your toes as high as possible, pause, then lower your heels below the step level.",
-                    GIF + "calves/dumbbell-standing-calf-raise.gif"),
-            )
-        )
-        DayOfWeek.FRIDAY -> Block(
-            warmup = Ex("Warm-up: Run + walk", "3 km run + 3 km walk",
-                "Start with a brisk 10-minute walk, then alternate ~3 km of running with ~3 km of walking. Keep a pace where you can still breathe through your nose on the walk portions."),
-            exercises = listOf(
-                Ex("Crunches", "4 sets × 20 reps",
-                    "Lie on your back, knees bent, hands by your head. Curl your shoulders off the floor toward your knees, squeeze your abs, then lower. Don't pull on your neck.",
-                    GIF + "abs/crunch-floor.gif"),
-                Ex("Leg raises", "4 sets × 15 reps",
-                    "Lie flat, legs straight. Raise your legs to 90°, then lower slowly without touching the floor. Keep your lower back pressed into the ground.",
-                    GIF + "abs/lying-leg-raise-flat-bench.gif"),
-                Ex("Dragon-fly leg raises", "4 sets × 8–10 reps",
-                    "Advanced: hold a fixed point behind your head. Raise your whole body straight up (hips lift off the floor), keeping it rigid, then lower slowly with control.",
-                    GIF + "abs/reverse-crunch.gif"),
-                Ex("Plank", "4 sets × 45–60 sec",
-                    "Forearms under your shoulders, body in a straight line. Brace your core and glutes and hold. Don't let your hips sag or pike up.",
+                Ex("Triceps rope pushdown", "3 × 12 • rest 60 s",
+                    "Elbows pinned to your sides. Push the rope down and spread the ends at the bottom, return slowly.",
+                    GIF + "triceps/cable-pushdown-with-rope-attachment.gif"),
+                Ex("Overhead triceps extension", "2 × 12 • rest 60 s",
+                    "One dumbbell held with both hands overhead. Lower behind the head by bending the elbows, extend back up. Elbows point forward.",
+                    GIF + "triceps/dumbbell-seated-triceps-extension.gif"),
+                Ex("Plank", "3 × 30–45 s • rest 45 s",
+                    "Forearms under shoulders, body in a straight line. Ribs down, glutes tight. Don't let the hips sag.",
                     GIF + "abs/weighted-front-plank.gif"),
             )
         )
-        DayOfWeek.SATURDAY -> Block(
-            warmup = null,
-            exercises = listOf(
-                Ex("Sport / active play", "60–90 min",
-                    "Play any sport you enjoy — badminton, football, cricket. Keep moving and have fun; this counts as your active recovery for the week."),
-            ),
-            category = TaskCategory.SPORT,
-            headerTime = ""
+        DayOfWeek.TUESDAY -> Block(
+            "Pull: back, biceps, rear shoulders",
+            Ex("Warm-up: light lat pulldown", "5–8 min walk/cycle, then 2 × 12 light",
+                "Brisk walk or cycle 5–8 min, then 2 light sets of 12 lat pulldowns.",
+                GIF + "lats/cable-lat-pulldown-full-range-of-motion.gif"),
+            listOf(
+                Ex("Lat pulldown", "4 × 8–10 • rest 2 min",
+                    "Grip slightly wider than shoulders. Pull the bar to the upper chest, squeeze the shoulder blades down and back, return slowly. Don't lean back much.$EFFORT",
+                    GIF + "lats/cable-lat-pulldown-full-range-of-motion.gif"),
+                Ex("Seated cable row", "3 × 10 • rest 90 s",
+                    "Chest up, slight knee bend. Pull the handle to your belly, squeeze the back, return with straight arms. No rocking.",
+                    GIF + "upper-back/cable-seated-row.gif"),
+                Ex("One-arm dumbbell row", "3 × 10 each • rest 90 s",
+                    "Hand and knee on the bench, flat back. Pull the dumbbell to your hip, lower fully.",
+                    GIF + "upper-back/dumbbell-one-arm-bent-over-row.gif"),
+                Ex("Face pulls", "3 × 15 • rest 60 s",
+                    "Rope at head height. Pull toward your face with elbows high and wide, squeeze the rear shoulders, return slowly.",
+                    GIF + "delts/cable-standing-rear-delt-row-with-rope.gif"),
+                Ex("Dumbbell or bar curl", "3 × 10 • rest 60 s",
+                    "Elbows pinned to your sides. Curl up, squeeze at the top, lower slowly. No swinging.",
+                    GIF + "biceps/dumbbell-biceps-curl.gif"),
+                Ex("Hammer curl", "2 × 12 • rest 60 s",
+                    "Palms facing each other, thumbs up. Curl and lower slowly.",
+                    GIF + "biceps/dumbbell-hammer-curl.gif"),
+                Ex("Hanging knee raise", "3 × 10 • rest 45 s",
+                    "Hang from the bar (or use the captain's chair). Bring your knees up toward the chest by curling the pelvis, lower slowly. No swinging.",
+                    GIF + "abs/assisted-hanging-knee-raise.gif"),
+            )
         )
-        DayOfWeek.SUNDAY -> Block(
-            warmup = null,
-            exercises = listOf(
-                Ex("Walking", "40–60 min easy",
-                    "Easy-paced walk to aid recovery and keep burning fat. No intensity — just steady movement and fresh air."),
-            ),
-            category = TaskCategory.REST,
-            headerTime = ""
+        DayOfWeek.WEDNESDAY -> Block(
+            "Legs and glutes",
+            Ex("Warm-up: squats + hip bridges", "Bodyweight squats 2 × 15, hip bridges 2 × 12",
+                "Bodyweight squats: sit hips back and down, chest up, knees over toes. Hip bridges: drive through the heels and squeeze the glutes at the top.",
+                GIF + "glutes/weighted-squat.gif"),
+            listOf(
+                Ex("Squat (goblet or barbell)", "4 × 8–10 • rest 2–3 min",
+                    "Feet shoulder-width. Brace the abs, sit hips back and down until thighs are about parallel, drive up through the heels. Don't let the lower back over-arch.$EFFORT",
+                    GIF + "quads/dumbbell-goblet-squat.gif"),
+                Ex("Romanian deadlift", "3 × 10 • rest 2 min",
+                    "Soft knees, push the hips back with a flat back, slide the bar down the thighs until you feel the hamstrings stretch, then stand up by squeezing the glutes.",
+                    GIF + "glutes/barbell-romanian-deadlift.gif"),
+                Ex("Leg press", "3 × 12 • rest 90 s",
+                    "Feet shoulder-width on the platform. Lower until knees are ~90°, press back without locking the knees. Lower back stays on the pad.",
+                    GIF + "glutes/sled-45-leg-press.gif"),
+                Ex("Walking lunges", "3 × 10 each • rest 90 s",
+                    "Long step forward, lower the back knee toward the floor, push through the front heel into the next step. Torso upright.",
+                    GIF + "glutes/walking-lunge.gif"),
+                Ex("Leg curl", "3 × 12 • rest 60 s",
+                    "Curl your heels toward your glutes, pause, lower under control. Hips stay on the pad.",
+                    GIF + "hamstrings/lever-lying-leg-curl.gif"),
+                Ex("Standing calf raise", "4 × 15 • rest 45 s",
+                    "Rise onto your toes as high as possible, pause, then lower the heels fully.",
+                    GIF + "calves/lever-standing-calf-raise.gif"),
+            )
         )
+        DayOfWeek.THURSDAY -> Block(
+            "Upper body volume: back, chest, arms",
+            Ex("Warm-up: band pull-aparts + push-ups", "Band pull-aparts 2 × 15, push-ups 1 × 10",
+                "Pull-aparts: arms straight, pull the band apart to chest level squeezing the shoulder blades. Then 10 controlled push-ups.",
+                GIF + "delts/band-reverse-fly.gif"),
+            listOf(
+                Ex("Pull-ups (or assisted)", "3 × 6–10 • rest 2 min",
+                    "Overhand grip shoulder-width. Pull your chest toward the bar, squeeze the shoulder blades, lower fully. Use the assisted machine or a band if needed.$EFFORT",
+                    GIF + "lats/pull-up.gif"),
+                Ex("Dips or machine chest press", "3 × 10 • rest 90 s",
+                    "Dips: lean slightly forward, lower until upper arms are parallel to the floor, press up. Or use the chest press machine.",
+                    GIF + "pectorals/chest-dip.gif"),
+                Ex("Arnold press", "3 × 10 • rest 90 s",
+                    "Start with palms facing you at chin height, rotate the palms forward as you press overhead, reverse on the way down.",
+                    GIF + "delts/dumbbell-arnold-press.gif"),
+                Ex("Cable fly", "3 × 12 • rest 60 s",
+                    "Slight bend in the elbows. Bring the handles together in front of the chest in a hugging arc, open slowly.",
+                    GIF + "pectorals/cable-standing-fly.gif"),
+                Ex("Curl and pushdown superset", "3 × 12 each • rest 60 s",
+                    "12 biceps curls straight into 12 triceps pushdowns, then rest. Elbows stay pinned on both.",
+                    GIF + "biceps/barbell-curl.gif"),
+                Ex("Lateral raises", "3 × 15 • rest 45 s",
+                    "Light weight, raise out to the sides to shoulder height leading with the elbows.",
+                    GIF + "delts/dumbbell-lateral-raise.gif"),
+                Ex("Cable crunch", "3 × 12 • rest 45 s",
+                    "Kneel holding the rope by your head. Crunch down by curling the spine (ribs toward hips), not by pulling with the arms.",
+                    GIF + "abs/cable-kneeling-crunch.gif"),
+            )
+        )
+        DayOfWeek.FRIDAY -> Block(
+            "Full body and conditioning",
+            Ex("Warm-up: light deadlift + lunges", "Light deadlift 2 × 8, then bodyweight lunges",
+                "2 light sets of 8 deadlifts focusing on a flat back, then a set of bodyweight lunges.",
+                GIF + "glutes/barbell-deadlift.gif"),
+            listOf(
+                Ex("Trap-bar or barbell deadlift", "3 × 6–8 • rest 2–3 min",
+                    "Stand in the middle, hinge down with a flat back, grip, brace the abs, then push the floor away — hips and shoulders rise together.$EFFORT",
+                    GIF + "glutes/trap-bar-deadlift.gif"),
+                Ex("Dumbbell bench press or push-ups", "3 × 10–12 • rest 90 s",
+                    "Press dumbbells up over the chest and lower slowly — or do push-ups with a straight body.",
+                    GIF + "pectorals/dumbbell-bench-press.gif"),
+                Ex("Bulgarian split squat", "3 × 8 each • rest 90 s",
+                    "Back foot on a bench. Lower straight down until the front thigh is about parallel, push up through the front heel.",
+                    GIF + "quads/dumbbell-single-leg-split-squat.gif"),
+                Ex("Seated row", "3 × 10 • rest 90 s",
+                    "Chest up, pull the handle to your belly, squeeze the back, return with straight arms.",
+                    GIF + "upper-back/cable-seated-row.gif"),
+                Ex("Farmer carry", "3 × 30 m • rest 60 s",
+                    "Heavy dumbbells at your sides. Walk tall with short steps, shoulders back, abs braced.",
+                    GIF + "quads/farmers-walk.gif"),
+                Ex("Leg raise", "3 × 12 • rest 45 s",
+                    "Lie flat, lower back pressed into the floor. Raise straight legs to 90°, lower slowly without touching down.",
+                    GIF + "abs/lying-leg-raise-flat-bench.gif"),
+                Ex("Finisher: incline walk or bike", "10 min • 30 s hard / 60 s easy",
+                    "Alternate 30 seconds hard with 60 seconds easy on the incline treadmill or bike.",
+                    GIF + "cardio/walking-on-incline-treadmill.gif"),
+            )
+        )
+        else -> null
+    }
+
+    /** 5–8 min after every gym session. Hold 30 s, breathe, never bounce. */
+    private const val HOLD = " Hold 30 s, breathe slowly, never bounce. Stretch until you feel a pull, not pain."
+    private val STRETCHES = listOf(
+        Ex("Kneeling hip flexor stretch", "30 s each side",
+            "Half-kneel, squeeze the back-leg glute and shift the hips forward until you feel the front of the hip stretch.$HOLD",
+            GIF + "quads/intermediate-hip-flexor-and-quad-stretch.gif"),
+        Ex("Hamstring stretch", "30 s each leg",
+            "Leg straight, hinge forward from the hips with a flat back.$HOLD",
+            GIF + "hamstrings/hamstring-stretch.gif"),
+        Ex("Standing quad stretch", "30 s each leg",
+            "Pull your heel to your glute, knees together, hips pushed slightly forward.$HOLD",
+            GIF + "quads/lying-side-quads-stretch.gif"),
+        Ex("Calf stretch on a wall", "30 s each leg",
+            "Hands on the wall, back leg straight with the heel down, lean in.$HOLD",
+            GIF + "calves/calf-stretch-with-hands-against-wall.gif"),
+        Ex("Doorway chest stretch", "30 s",
+            "Forearm on the door frame at shoulder height, step through until the chest stretches.$HOLD",
+            GIF + "pectorals/chest-and-front-of-shoulder-stretch.gif"),
+        Ex("Child's pose (lats and back)", "30 s",
+            "Kneel, sit back on your heels and reach your arms long in front.$HOLD",
+            GIF + "lats/kneeling-lat-stretch.gif"),
+        Ex("Cat-cow", "10 slow reps",
+            "On all fours: round the back up (cat), then let the belly drop and look up (cow). Move slowly with your breath.",
+            GIF + "spine/spine-stretch.gif"),
+    )
+
+    /** Anterior-pelvic-tilt fix — 10 min every day, including Sunday. */
+    private val POSTURE = listOf(
+        Ex("Glute bridge", "2 × 15",
+            "Lie on your back, knees bent. Drive through the heels and squeeze the glutes at the top. Don't arch the lower back.",
+            GIF + "glutes/low-glute-bridge-on-floor.gif"),
+        Ex("Dead bug", "2 × 8 each side",
+            "Arms up, knees at 90°. Lower opposite arm and leg slowly while keeping the lower back flat on the floor.",
+            GIF + "abs/dead-bug.gif"),
+        Ex("Bird dog", "2 × 8 each side",
+            "On all fours, extend opposite arm and leg until level with your back, hold 2 s. Keep the hips square and back flat."),
+        Ex("Posterior-tilt plank", "3 × 20–30 s",
+            "Plank with the tailbone tucked under — ribs down, glutes tight, so the lower back is flat, not hollow.",
+            GIF + "spine/standing-pelvic-tilt.gif"),
+        Ex("Wall angels", "2 × 10",
+            "Back, head and arms against the wall. Slide the arms up and down like a snow angel while your upper back stays on the wall."),
+        Ex("Chin tucks", "2 × 10",
+            "Look straight ahead and pull your chin straight back (make a double chin). Hold 2 s, relax."),
+        Ex("Daily hip flexor stretch", "30 s each side",
+            "Half-kneel, squeeze the back-leg glute and shift the hips forward.",
+            GIF + "quads/intermediate-hip-flexor-and-quad-stretch.gif"),
+    )
+
+    /** Soya on Tue/Thu/Sat, chana + moong on the other days. */
+    private fun lunchBowl(day: DayOfWeek) = when (day) {
+        DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.SATURDAY -> "Boiled soya bowl"
+        else -> "Boiled chana + moong bowl"
     }
 
     fun buildDay(epochDay: Long, dayOfWeek: DayOfWeek): List<DayTask> {
         val tasks = mutableListOf<DayTask>()
         var order = 0
         fun add(t: DayTask) { tasks += t.copy(epochDay = epochDay, sortOrder = order++) }
+        fun meal(title: String, sub: String, time: String, kcal: Int, protein: Int) =
+            add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
+                title = title, subtitle = sub, time = time, kcal = kcal, protein = protein))
+        fun ex(cat: TaskCategory, e: Ex, time: String = "") =
+            add(DayTask(epochDay = epochDay, category = cat.name, title = e.name,
+                subtitle = e.reps, time = time, howTo = e.how, imageUrl = e.gif))
 
-        // --- Morning routine ---
-        add(DayTask(epochDay = epochDay, category = TaskCategory.WALK.name,
-            title = "Morning walk", subtitle = "30-40 min brisk • belly fat", time = "06:00"))
-        add(DayTask(epochDay = epochDay, category = TaskCategory.LEARN.name,
-            title = "Learning block", subtitle = "2 hours focused study", time = "06:30"))
+        val gymDay = blockFor(dayOfWeek)
 
-        // --- Meals before workout ---
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Breakfast", subtitle = "4 boiled eggs + 1 banana", time = "07:00",
-            kcal = 380, protein = 26))
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Mid-morning", subtitle = "Roasted chana (50g)", time = "10:00",
-            kcal = 175, protein = 10))
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Lunch", subtitle = "Hostel rice + dal + sabzi", time = "13:00",
-            kcal = 550, protein = 16))
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Pre-workout", subtitle = "Peanut butter (2 tbsp) + 1 banana + 2 eggs",
-            time = "18:30", kcal = 435, protein = 22))
+        meal("Before gym", "1 banana + black coffee, plus water", "06:15", 105, 1)
 
-        // --- Workout block ---
-        val block = blockFor(dayOfWeek)
-        block.warmup?.let { w ->
-            add(DayTask(epochDay = epochDay, category = TaskCategory.WARMUP.name,
-                title = w.name, subtitle = w.reps, time = block.headerTime,
-                howTo = w.how, imageUrl = w.gif))
-        }
-        block.exercises.forEach { ex ->
-            add(DayTask(epochDay = epochDay, category = block.category.name,
-                title = ex.name, subtitle = ex.reps, howTo = ex.how, imageUrl = ex.gif))
+        if (gymDay != null) {
+            ex(TaskCategory.WARMUP, gymDay.warmup, "07:00")
+            gymDay.exercises.forEach { ex(TaskCategory.WORKOUT, it) }
+            STRETCHES.forEach { ex(TaskCategory.STRETCH, it) }
+            meal("After gym", "1 scoop whey in water", "08:30", 120, 25)
+        } else if (dayOfWeek == DayOfWeek.SATURDAY) {
+            ex(TaskCategory.SPORT, Ex("Outdoor run / jog", "5 min walk • run • 5 min walk",
+                "Run at a pace where you can still talk.\n" +
+                    "• Weeks 1–2: jog 1 min, walk 2 min × 8\n" +
+                    "• Weeks 3–4: jog 2 min, walk 1 min × 8\n" +
+                    "• Weeks 5–6: 20 min continuous easy jog\n" +
+                    "• Week 7 on: 30–35 min easy jog\n" +
+                    "Wear proper running shoes, drink water before and after, skip if unwell.",
+                GIF + "cardio/run.gif"), "07:00")
+        } else {
+            add(DayTask(epochDay = epochDay, category = TaskCategory.REST.name,
+                title = "Full rest", subtitle = "Sleep 8 h • optional 20 min walk + 10 min stretch",
+                howTo = "Sleep 8 hours and nap if you need one. Optional relaxed 20 min walk and 10 min stretching. Plan your week and prep your boiled lunches."))
         }
 
-        // --- Post-workout ---
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Dinner", subtitle = "3 egg bhurji + 2 bread + curd", time = "21:00",
-            kcal = 450, protein = 28))
-        add(DayTask(epochDay = epochDay, category = TaskCategory.MEAL.name,
-            title = "Before bed", subtitle = "1 glass milk", time = "22:00",
-            kcal = 120, protein = 6))
+        POSTURE.forEach { ex(TaskCategory.STRETCH, it) }
+
+        meal("Lunch", "${lunchBowl(dayOfWeek)} + carrot, cucumber, lemon, chaat masala • dal, curd, salad, 2 rotis or small rice",
+            "13:00", 650, 38)
+        meal("3 boiled eggs", "With lunch or as a snack", "13:30", 210, 18)
+        meal("4 pm snack", "Banana with oats and seeds", "16:00", 280, 9)
+        meal("Night", "2 rotis + dal, egg or paneer + sabzi • 1 whole fruit (no juice)", "20:30", 500, 26)
+        meal("Soak tomorrow's beans", "Soak overnight • boil at 100°C • skip fried food, sweets, cold drinks", "21:30", 0, 0)
 
         return tasks
     }
