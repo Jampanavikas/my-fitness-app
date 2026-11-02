@@ -10,28 +10,40 @@ Built with **Kotlin + Jetpack Compose** (Material 3) and **Room** for local pers
 
 ### Today tab
 - Animated lava-lamp **glassmorphism** background
-- **Calorie ring** (target 1,650 kcal) that fills as you check off meals
-- **Protein** progress bar (target 130 g) and a day-completion bar
-- **Water tracker** (~3.5 L / 14 glasses)
-- Auto-generated **daily checklist** built from your routine:
-  - Morning walk + 2-hour learning block (before the 10–7 job)
-  - 6 meals with times, calories and protein
-  - Workout **7:45–8:45 pm**, split by weekday
+- **Calorie ring** (target 1,850 kcal) that fills as you check off meals
+- **Protein** progress bar (target 120 g) and a day-completion bar
+- **Water tracker** (3 L / 12 glasses)
+- Auto-generated **daily checklist** built from the *Lean & Athletic* weekly plan:
+  - Gym at **7 am** Mon–Fri: warm-up, exercises with sets × reps and rest times
+  - **Stretching** after every gym session, **posture correction** every day
+  - Meals with times, calories and protein
 - Tap any item to tick it done — saved locally, survives restarts
-- Each exercise has a **"How to do it"** panel with an **animated demo GIF** + form cues
+- Each exercise has a **"How to do it"** panel with an **animated demo GIF** + form cues, and a **Watch demo** link (YouTube search)
+- Changing the plan (`RoutineTemplate.PLAN_VERSION`) rebuilds today and future days; past history is kept
 
 ### Workout split
 | Day | Warm-up | Focus |
 |-----|---------|-------|
-| Mon | Burpees | Chest + Shoulders |
-| Tue | Burpees | Back / Pull (pull-ups ★, deadlift, rows, band face-pull) |
-| Wed | Burpees | Arms (biceps + triceps) |
-| Thu | Squats  | Legs |
-| Fri | Run + walk | Core + Cardio |
-| Sat | — | Sport / active play |
-| Sun | — | Easy walking |
+| Mon | Light bench press | Push: chest, shoulders, triceps |
+| Tue | Light lat pulldown | Pull: back, biceps, rear shoulders |
+| Wed | Bodyweight squats + hip bridges | Legs and glutes |
+| Thu | Band pull-aparts + push-ups | Upper body volume: back, chest, arms |
+| Fri | Light deadlift + lunges | Full body + conditioning finisher |
+| Sat | 5 min walk | Outdoor run / jog (progresses week by week) |
+| Sun | — | Full rest |
 
-*Equipment: barbell, dumbbells, tube resistance band, skipping rope, gripper.*
+**After every gym session:** hip flexor, hamstring, quad, calf, chest stretches, child's pose, cat-cow.
+**Every day:** glute bridge, dead bug, bird dog, posterior-tilt plank, wall angels, chin tucks, hip flexor stretch.
+
+### Diet (~1,850 kcal · ~120 g protein)
+| Time | Meal |
+|------|------|
+| 6:15 am | 1 banana + black coffee |
+| After gym | 1 scoop whey in water |
+| 1 pm | Boiled bowl (soya Tue/Thu/Sat, chana + moong other days) + dal, curd, salad, 2 rotis or small rice · 3 boiled eggs |
+| 4 pm | Banana with oats and seeds |
+| 8:30 pm | 2 rotis + dal, egg or paneer + sabzi · 1 whole fruit |
+| 9:30 pm | Soak tomorrow's beans |
 
 ### Dashboard tab
 - **Weekly completion** bar chart (Mon–Sun, today highlighted)
@@ -39,7 +51,7 @@ Built with **Kotlin + Jetpack Compose** (Material 3) and **Room** for local pers
 - **Daily reminders** master toggle
 
 ### Notifications
-- Daily reminders at each routine time (walk, learning, meals, workout)
+- Daily reminders: before gym, gym, after gym, meals, posture work, soaking beans
 - Exact alarms that survive Doze and reboot; re-arm automatically each day
 
 ---
